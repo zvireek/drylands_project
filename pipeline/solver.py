@@ -60,18 +60,18 @@ class ImplicitSolver:
         return sp.csr_matrix(A)
 
     def solve_step(self, u, v, params, dt, dx):
-        u_tmp = u.copy()
-        v_tmp = v.copy()
+        u_tmp = u + dt * (params['a'] - u - u * v * v)
+        v_tmp = v + dt * (u * v * v - params['m'] * v)
 
         # We apply the Dirichlet boundary conditions
         for key in self.indices:
             u_tmp[self.indices[key]] = 0
             v_tmp[self.indices[key]] = 0
 
-        u = sp.linalg.spsolve(self.ev_mtr1, u_tmp)
-        v = sp.linalg.spsolve(self.ev_mtr2, v_tmp)
+        u_next = sp.linalg.spsolve(self.ev_mtr1, u_tmp)
+        v_next = sp.linalg.spsolve(self.ev_mtr2, v_tmp)
 
-        return u, v
+        return u_next, v_next
 
 if __name__ == "__main__":
     pass

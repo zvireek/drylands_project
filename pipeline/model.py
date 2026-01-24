@@ -25,10 +25,10 @@ class KlausmeierModel:
         :return:
         """
         # --- Defining the axes ---
-        ox = np.arange(0, self.L + self.dx, self.dx)
-        oy = np.arange(0, self.L + self.dx, self.dx)
-        self.dx = ox[1] - ox[0]
-        self.n = len(ox)
+        self.n = int(self.L / self.dx) + 1
+        ox = np.linspace(0, self.L, self.n)
+        oy = np.linspace(0, self.L, self.n)
+        # self.dx = ox[1] - ox[0]
 
         # --- Defining the grid ---
         X, Y = np.meshgrid(ox, oy)
@@ -38,11 +38,6 @@ class KlausmeierModel:
         right_ind = np.isclose(X, self.L, atol=self.dx / 2).flatten()
         top_ind = np.isclose(Y, self.L, atol=self.dx / 2).flatten()
         bot_ind = np.isclose(Y, 0, atol=self.dx / 2).flatten()
-
-        sum_indices = left_ind + right_ind + top_ind + bot_ind
-
-        plt.imshow(sum_indices.reshape(self.n, self.n))
-        plt.show()
 
         self.bound_indices = {'l': left_ind, 'r': right_ind, 't': top_ind, 'b': bot_ind}
 
@@ -66,22 +61,31 @@ class KlausmeierModel:
 
 if __name__ == "__main__":
 
-    dt = 0.5
-    model = KlausmeierModel(dx=0.5, L = 10, a=2.0, m=1, d1 = 1, d2 = 0.01)
+    dt = 0.1
+    model = KlausmeierModel(dx=0.1, L = 2, a=2.0, m=1, d1 = 100, d2 = 1)
     solver = ImplicitSolver()
-    model.run_simulation(dt, 2, solver)
 
-    """fig, ax = plt.subplots(1, 2)
-    ax[0].imshow(model.u.reshape(model.n, model.n))
-    ax[1].imshow(model.v.reshape(model.n, model.n))
-    # plt.colorbar()
+    model.run_simulation(dt, 0, solver)
+    fig, ax = plt.subplots(1, 2)
+    im1 = ax[0].imshow(model.u.reshape(model.n, model.n))
+    im2 = ax[1].imshow(model.v.reshape(model.n, model.n))
+    fig.colorbar(im1, ax=ax[0], fraction=0.046, pad=0.04)
+    fig.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
+    fig.show()
+
+    model.run_simulation(dt, 1, solver)
+    fig, ax = plt.subplots(1, 2)
+    im1 = ax[0].imshow(model.u.reshape(model.n, model.n))
+    im2 = ax[1].imshow(model.v.reshape(model.n, model.n))
+    fig.colorbar(im1, ax=ax[0], fraction=0.046, pad=0.04)
+    fig.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
     fig.show()
 
 
     model.run_simulation(dt, 100, solver)
-
     fig2, ax2 = plt.subplots(1, 2)
-    ax2[0].imshow(model.u.reshape(model.n, model.n))
-    ax2[1].imshow(model.v.reshape(model.n, model.n))
-    # plt.colorbar()
-    fig2.show()"""
+    im1 = ax2[0].imshow(model.u.reshape(model.n, model.n))
+    im2 = ax2[1].imshow(model.v.reshape(model.n, model.n))
+    fig2.colorbar(im1, ax=ax2[0], fraction=0.046, pad=0.04)
+    fig2.colorbar(im2, ax=ax2[1], fraction=0.046, pad=0.04)
+    fig2.show()
