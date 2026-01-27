@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from solver import ImplicitSolver
+from .solver import ImplicitSolver
 from tqdm import tqdm
 
 class KlausmeierModel:
@@ -19,6 +19,9 @@ class KlausmeierModel:
         self.setup_geometry()
 
         self.time = 0.0
+
+    def set_a(self, new_a):
+        self.params['a'] = new_a
 
     def setup_geometry(self):
         """
@@ -54,13 +57,13 @@ class KlausmeierModel:
         self.u, self.v = solver.solve_step(self.u, self.v, self.params, dt, self.dx)
         self.time += dt
 
-    def run_simulation(self, dt, steps, solver):
+    def run_simulation(self, dt, steps, slvr):
         if self.time == 0:
             self.set_initial_conditions()
-            solver.setup_parameters(self.n, dt, self.dx, self.bound_indices, self.params)
+            slvr.setup_parameters(self.n, dt, self.dx, self.bound_indices, self.params)
 
         for _ in tqdm(range(steps)):
-            self.step(dt, solver)
+            self.step(dt, slvr)
 
         return self.u, self.v
 
@@ -70,6 +73,7 @@ if __name__ == "__main__":
     model = KlausmeierModel(dx=1, L = 250, a=2, m=0.45, d1 = 182.5, d2 = 0.25)
     solver = ImplicitSolver()
 
+    """
     model.run_simulation(dt, 0, solver)
     fig, ax = plt.subplots(1, 2)
     im1 = ax[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
@@ -77,8 +81,9 @@ if __name__ == "__main__":
     fig.colorbar(im1, ax=ax[0], fraction=0.046, pad=0.04)
     fig.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
     fig.show()
+    """
 
-    model.run_simulation(dt, 1, solver)
+    model.run_simulation(dt, 100, solver)
     fig, ax = plt.subplots(1, 2)
     im1 = ax[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
     im2 = ax[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
@@ -86,8 +91,7 @@ if __name__ == "__main__":
     fig.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
     fig.show()
 
-
-    u_end, v_end = model.run_simulation(dt, 1000, solver)
+    u_end, v_end = model.run_simulation(dt, 500, solver)
     fig2, ax2 = plt.subplots(1, 2)
     im1 = ax2[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
     im2 = ax2[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
