@@ -1,9 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from solver import ImplicitSolver
+from tqdm import tqdm
 
 class KlausmeierModel:
-    def __init__(self, dx, L, a, m, d1=0.025, d2=0.025):
+    def __init__(self, dx, L, a, m, d1=180.0, d2=0.025):
         self.params = {'a': a, 'm': m, 'd1': d1, 'd2': d2}
 
         self.dx = dx
@@ -32,12 +33,14 @@ class KlausmeierModel:
 
         # --- Defining the grid ---
         X, Y = np.meshgrid(ox, oy)
+        X_flat = X.flatten()
+        Y_flat = Y.flatten()
 
         # --- Defining the Dirichlet boundary indices ---
-        left_ind = np.isclose(X, 0, atol = self.dx/2).flatten()
-        right_ind = np.isclose(X, self.L, atol=self.dx / 2).flatten()
-        top_ind = np.isclose(Y, self.L, atol=self.dx / 2).flatten()
-        bot_ind = np.isclose(Y, 0, atol=self.dx / 2).flatten()
+        left_ind = np.where(np.isclose(X_flat, 0, atol=self.dx / 2))[0]
+        right_ind = np.where(np.isclose(X_flat, self.L, atol=self.dx / 2))[0]
+        top_ind = np.where(np.isclose(Y_flat, self.L, atol=self.dx / 2))[0]
+        bot_ind = np.where(np.isclose(Y_flat, 0, atol=self.dx / 2))[0]
 
         self.bound_indices = {'l': left_ind, 'r': right_ind, 't': top_ind, 'b': bot_ind}
 
@@ -56,36 +59,40 @@ class KlausmeierModel:
             self.set_initial_conditions()
             solver.setup_parameters(self.n, dt, self.dx, self.bound_indices, self.params)
 
-        for _ in range(steps):
+        for _ in tqdm(range(steps)):
             self.step(dt, solver)
+
+        return self.u, self.v
 
 if __name__ == "__main__":
 
     dt = 0.1
-    model = KlausmeierModel(dx=0.1, L = 2, a=2.0, m=1, d1 = 100, d2 = 1)
+    model = KlausmeierModel(dx=1, L = 250, a=2, m=0.45, d1 = 182.5, d2 = 0.25)
     solver = ImplicitSolver()
 
     model.run_simulation(dt, 0, solver)
     fig, ax = plt.subplots(1, 2)
-    im1 = ax[0].imshow(model.u.reshape(model.n, model.n))
-    im2 = ax[1].imshow(model.v.reshape(model.n, model.n))
+    im1 = ax[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
+    im2 = ax[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
     fig.colorbar(im1, ax=ax[0], fraction=0.046, pad=0.04)
     fig.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
     fig.show()
 
     model.run_simulation(dt, 1, solver)
     fig, ax = plt.subplots(1, 2)
-    im1 = ax[0].imshow(model.u.reshape(model.n, model.n))
-    im2 = ax[1].imshow(model.v.reshape(model.n, model.n))
+    im1 = ax[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
+    im2 = ax[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
     fig.colorbar(im1, ax=ax[0], fraction=0.046, pad=0.04)
     fig.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
     fig.show()
 
 
-    model.run_simulation(dt, 100, solver)
+    u_end, v_end = model.run_simulation(dt, 1000, solver)
     fig2, ax2 = plt.subplots(1, 2)
-    im1 = ax2[0].imshow(model.u.reshape(model.n, model.n))
-    im2 = ax2[1].imshow(model.v.reshape(model.n, model.n))
+    im1 = ax2[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
+    im2 = ax2[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
     fig2.colorbar(im1, ax=ax2[0], fraction=0.046, pad=0.04)
     fig2.colorbar(im2, ax=ax2[1], fraction=0.046, pad=0.04)
     fig2.show()
+
+    # print(u_end.reshape(model.n, model.n))
