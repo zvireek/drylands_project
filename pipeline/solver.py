@@ -13,6 +13,12 @@ def D2(N):
   D2_matr = -2 * np.eye(N) + np.eye(N, k=1) + np.eye(N, k=-1)
   return D2_matr
 
+def D2_sparse(N):
+    main_diag = -2 * np.ones(N)
+    side_diag = np.ones(N - 1)
+    D2_1d = sp.diags([side_diag, main_diag, side_diag], [-1, 0, 1], format='csr')
+    return D2_1d
+
 
 class ImplicitSolver:
     # to be added
@@ -43,9 +49,11 @@ class ImplicitSolver:
 
         # --- 2nd - derivative matrix ---
         Derv2 = D2(n)
+        # D2_1d = D2_sparse(n)
 
         # --- Laplacian ---
         laplacian = np.kron(I, Derv2) + np.kron(Derv2, I)
+        # laplacian = np.kron(I, D2_1d) + np.kron(D2_1d, I)
 
         # --- Evolution matrix ---
         factor = (diff_coef * self.dt) / (self.dx**2)
