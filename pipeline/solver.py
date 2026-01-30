@@ -3,17 +3,6 @@ import scipy.sparse as sp
 import scipy.sparse.linalg as spla
 
 # Defining derivative matrices
-"""def D1_left(N):
-  D1 = np.eye(N, k=1) - np.eye(N)
-  return D1
-def D1_right(N):
-  D1 = -np.eye(N, k=-1) + np.eye(N)
-  return D1"""
-
-def D2(N):
-  D2_matr = -2 * np.eye(N) + np.eye(N, k=1) + np.eye(N, k=-1)
-  return D2_matr
-
 def D2_sparse(N):
     main_diag = -2 * np.ones(N)
     side_diag = np.ones(N - 1)
@@ -22,16 +11,12 @@ def D2_sparse(N):
 
 
 class ImplicitSolver:
-    # to be added
-
     def __init__(self):
         self.dt = None
         self.dx = None
         self.indices = None
         self.params = None
 
-        # self.A_u = None
-        # self.A_v = None
         # Decomposed matrices
         self.lu_u = None
         self.lu_v = None
@@ -55,19 +40,15 @@ class ImplicitSolver:
 
         # --- Identity matrices ---
         I = sp.eye(n)
-        I_N_sqr = sp.eye(N)
 
         # --- 2nd - derivative matrix ---
-        # Derv2 = D2(n)
         D2_1d = D2_sparse(n)
 
         # --- Laplacian ---
-        # laplacian = np.kron(I, Derv2) + np.kron(Derv2, I)
         laplacian = sp.kron(I, D2_1d) + sp.kron(D2_1d, I)
 
         # --- Evolution matrix ---
         factor = (diff_coef * self.dt) / (self.dx**2)
-        # A = np.eye(N) - factor * laplacian
         A = (sp.eye(N, format='csr') - factor * laplacian).tolil()
 
         # --- Replacing the rows of evolution matrix ---
@@ -78,14 +59,16 @@ class ImplicitSolver:
             A.rows[idx] = [idx]
             A.data[idx] = [1.0]
 
-        return A.tocsr()
+        # return A.tocsr()
+        return A
 
-    def solve_step(self, u, v, params, dt, dx):
+    def solve_step(self, u, v, params, dt, tolerance):
+        cont = True
         try:
             u_tmp = u + dt * (params['a'] - u - u * v * v)
             v_tmp = v + dt * (u * v * v - params['m'] * v)
         except:
-            raise ValueError("Error in computing the reaction terms during the solver step.")
+            raise ValueError()
 
         # We apply the Dirichlet boundary conditions
         for key in self.indices:
@@ -95,7 +78,11 @@ class ImplicitSolver:
         u_next = self.lu_u.solve(u_tmp)
         v_next = self.lu_v.solve(v_tmp)
 
-        return u_next, v_next
+
+        if np.max([np.abs(u - u_next), np.abs(v - v_next)]) < tolerance:
+            cont = False
+
+        return u_next, v_next, cont
 
 if __name__ == "__main__":
     pass

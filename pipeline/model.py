@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from .solver import ImplicitSolver
+from solver import ImplicitSolver
 from tqdm import tqdm
 
 class KlausmeierModel:
@@ -53,25 +53,29 @@ class KlausmeierModel:
         self.v = (np.full((n, n), 1.4) + np.random.uniform(-0.01, 0.01, (n, n))).flatten()
         print("Model initial conditions set to: something")
 
-    def step(self, dt, solver):
-        self.u, self.v = solver.solve_step(self.u, self.v, self.params, dt, self.dx)
+    def step(self, dt, slvr, tolerance):
+        self.u, self.v, cont = slvr.solve_step(self.u, self.v, self.params, dt, tolerance)
         self.time += dt
+        return cont
 
-    def run_simulation(self, dt, steps, slvr):
+    def run_simulation(self, dt, steps, slvr, max_steps = 1000, tolerance = 0):
         if self.time == 0:
             self.set_initial_conditions()
             slvr.setup_parameters(self.n, dt, self.dx, self.bound_indices, self.params)
 
-        for _ in tqdm(range(steps)):
-            self.step(dt, slvr)
+        n = np.min([steps, max_steps])
+
+        for _ in tqdm(range(n)):
+            if not self.step(dt, slvr, tolerance):
+                break
 
         return self.u, self.v
 
 if __name__ == "__main__":
 
-    dt = 0.1
+    ht = 0.1
     model = KlausmeierModel(dx=1, L = 250, a=2, m=0.45, d1 = 182.5, d2 = 0.25)
-    solver = ImplicitSolver()
+    my_solver = ImplicitSolver()
 
     """
     model.run_simulation(dt, 0, solver)
@@ -83,7 +87,7 @@ if __name__ == "__main__":
     fig.show()
     """
 
-    model.run_simulation(dt, 100, solver)
+    model.run_simulation(ht, 100, my_solver, tolerance= 0.001)
     fig, ax = plt.subplots(1, 2)
     im1 = ax[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
     im2 = ax[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
@@ -91,7 +95,7 @@ if __name__ == "__main__":
     fig.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
     fig.show()
 
-    u_end, v_end = model.run_simulation(dt, 500, solver)
+    u_end, v_end = model.run_simulation(ht, 500, my_solver)
     fig2, ax2 = plt.subplots(1, 2)
     im1 = ax2[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
     im2 = ax2[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
