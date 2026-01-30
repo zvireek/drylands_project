@@ -78,9 +78,10 @@ class ImplicitSolver:
         u_next = self.lu_u.solve(u_tmp)
         v_next = self.lu_v.solve(v_tmp)
 
-
+        # this is time consuming - place for improvement ############################
         if np.max([np.abs(u - u_next), np.abs(v - v_next)]) < tolerance:
             cont = False
+            print("Convergence reached in solver.")
 
         return u_next, v_next, cont
 
