@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pipeline.solver import ImplicitSolver
-from tqdm import tqdm
+from tqdm.auto import tqdm, trange
+
 
 class KlausmeierModel:
     def __init__(self, dx, L, a, m, d1=180.0, d2=0.025):
@@ -60,14 +61,14 @@ class KlausmeierModel:
         self.time += dt
         return cont
 
-    def run_simulation(self, dt, steps, slvr, max_steps = 10000, tolerance = 0.0):
+    def run_simulation(self, dt, steps, slvr, max_steps = 10000, tolerance = 0.0, verbose = True):
         if self.time == 0:
             self.set_initial_conditions()
             slvr.setup_parameters(self.n, dt, self.dx, self.bound_indices, self.params)
 
         n = np.min([steps, max_steps])
 
-        for _ in tqdm(range(n)):
+        for _ in trange(n, disable = not verbose, desc=f"Simulating {n * dt} units of time"):
             if not self.step(dt, slvr, tolerance):
                 break
 
@@ -75,11 +76,24 @@ class KlausmeierModel:
 
 if __name__ == "__main__":
 
-    ht = 0.005
+    ht = 0.05
     model = KlausmeierModel(dx=0.25, L = 10, a=2, m=0.45, d1 = 1, d2 = 0.05)
     my_solver = ImplicitSolver()
 
-    model.run_simulation(ht, 1000, my_solver, tolerance= 0.0001)
+    model.run_simulation(ht, 1000, my_solver, tolerance= 0)
+    fig, ax = plt.subplots(1, 2)
+    im1 = ax[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
+    im2 = ax[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
+    fig.colorbar(im1, ax=ax[0], fraction=0.046, pad=0.04)
+    fig.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
+    fig.tight_layout()
+    fig.show()
+
+    print(np.average(model.v))
+
+    model.set_a(1.2)
+
+    model.run_simulation(ht, 1000, my_solver, tolerance=0)
     fig, ax = plt.subplots(1, 2)
     im1 = ax[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
     im2 = ax[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
