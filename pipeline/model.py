@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from solver import ImplicitSolver
+from pipeline.solver import ImplicitSolver
 from tqdm import tqdm
 
 class KlausmeierModel:
@@ -49,8 +49,10 @@ class KlausmeierModel:
 
     def set_initial_conditions(self):
         n = self.n
-        self.u = (np.full((n, n), 0.70) + np.random.uniform(-0.01, 0.01, (n, n))).flatten()
-        self.v = (np.full((n, n), 1.4) + np.random.uniform(-0.01, 0.01, (n, n))).flatten()
+        # self.u = (np.full((n, n), 0.70) + np.random.uniform(-0.01, 0.01, (n, n))).flatten()
+        self.u = (np.full((n, n), 2) + np.random.uniform(-0.01, 0.01, (n, n))).flatten()
+        # self.v = (np.full((n, n), 1.4) + np.random.uniform(-0.01, 0.01, (n, n))).flatten()
+        self.v = (np.full((n, n), 2) + np.random.uniform(-0.01, 0.01, (n, n))).flatten()
         print("Model initial conditions set to: something")
 
     def step(self, dt, slvr, tolerance):
@@ -58,7 +60,7 @@ class KlausmeierModel:
         self.time += dt
         return cont
 
-    def run_simulation(self, dt, steps, slvr, max_steps = 1000, tolerance = 0):
+    def run_simulation(self, dt, steps, slvr, max_steps = 10000, tolerance = 0.0):
         if self.time == 0:
             self.set_initial_conditions()
             slvr.setup_parameters(self.n, dt, self.dx, self.bound_indices, self.params)
@@ -73,34 +75,17 @@ class KlausmeierModel:
 
 if __name__ == "__main__":
 
-    ht = 0.1
-    model = KlausmeierModel(dx=1, L = 250, a=2, m=0.45, d1 = 182.5, d2 = 0.25)
+    ht = 0.005
+    model = KlausmeierModel(dx=0.25, L = 10, a=2, m=0.45, d1 = 1, d2 = 0.05)
     my_solver = ImplicitSolver()
 
-    """
-    model.run_simulation(dt, 0, solver)
+    model.run_simulation(ht, 1000, my_solver, tolerance= 0.0001)
     fig, ax = plt.subplots(1, 2)
     im1 = ax[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
     im2 = ax[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
     fig.colorbar(im1, ax=ax[0], fraction=0.046, pad=0.04)
     fig.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
-    fig.show()
-    """
-
-    model.run_simulation(ht, 100, my_solver, tolerance= 0.001)
-    fig, ax = plt.subplots(1, 2)
-    im1 = ax[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
-    im2 = ax[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
-    fig.colorbar(im1, ax=ax[0], fraction=0.046, pad=0.04)
-    fig.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
+    fig.tight_layout()
     fig.show()
 
-    u_end, v_end = model.run_simulation(ht, 500, my_solver)
-    fig2, ax2 = plt.subplots(1, 2)
-    im1 = ax2[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
-    im2 = ax2[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
-    fig2.colorbar(im1, ax=ax2[0], fraction=0.046, pad=0.04)
-    fig2.colorbar(im2, ax=ax2[1], fraction=0.046, pad=0.04)
-    fig2.show()
-
-    # print(u_end.reshape(model.n, model.n))
+    print(np.average(model.v))
