@@ -6,6 +6,15 @@ from tqdm.auto import tqdm, trange
 
 class KlausmeierModel:
     def __init__(self, dx, L, a, m, d1=180.0, d2=0.025):
+        """
+        Initializes the Klausmeier model with given parameters.
+        :param dx:
+        :param L:
+        :param a:
+        :param m:
+        :param d1:
+        :param d2:
+        """
         self.params = {'a': a, 'm': m, 'd1': d1, 'd2': d2}
 
         self.dx = dx
@@ -51,9 +60,9 @@ class KlausmeierModel:
     def set_initial_conditions(self):
         n = self.n
         # self.u = (np.full((n, n), 0.70) + np.random.uniform(-0.01, 0.01, (n, n))).flatten()
-        self.u = (np.full((n, n), 2) + np.random.uniform(-0.01, 0.01, (n, n))).flatten()
+        self.u = (np.full((n, n), 2) + np.random.uniform(-0.1, 0.1, (n, n))).flatten()
         # self.v = (np.full((n, n), 1.4) + np.random.uniform(-0.01, 0.01, (n, n))).flatten()
-        self.v = (np.full((n, n), 2) + np.random.uniform(-0.01, 0.01, (n, n))).flatten()
+        self.v = (np.full((n, n), 2) + np.random.uniform(-0.1, 0.1, (n, n))).flatten()
         print("Model initial conditions set to: something")
 
     def step(self, dt, slvr, tolerance):
@@ -76,8 +85,8 @@ class KlausmeierModel:
 
 if __name__ == "__main__":
 
-    ht = 0.05
-    model = KlausmeierModel(dx=0.25, L = 10, a=2, m=0.45, d1 = 1, d2 = 0.05)
+    ht = 0.1
+    model = KlausmeierModel(dx=1, L = 100, a=1, m=0.45, d1 = 182.5, d2 = 1)
     my_solver = ImplicitSolver()
 
     model.run_simulation(ht, 1000, my_solver, tolerance= 0)
@@ -91,7 +100,7 @@ if __name__ == "__main__":
 
     print(np.average(model.v))
 
-    model.set_a(1.2)
+    model.set_a(1)
 
     model.run_simulation(ht, 1000, my_solver, tolerance=0)
     fig, ax = plt.subplots(1, 2)
