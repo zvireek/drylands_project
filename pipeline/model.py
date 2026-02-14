@@ -85,26 +85,13 @@ class KlausmeierModel:
 
 if __name__ == "__main__":
 
-    ht = 0.1
-    # model = KlausmeierModel(dx=1, L = 100, a=1, m=0.45, d1 = 182.5, d2 = 1)
-    model = KlausmeierModel(dx=0.25, L=50, a=1, m=0.45, d1=1, d2=0.05)
+    """ht = 0.1
+    model = KlausmeierModel(dx=1, L = 100, a=2, m=0.45, d1 = 2, d2 = 0.01)
+    # model = KlausmeierModel(dx=0.25, L=50, a=1, m=0.45, d1=1, d2=0.05)
 
     my_solver = ImplicitSolver()
 
     model.run_simulation(ht, 1000, my_solver, tolerance= 0)
-    fig, ax = plt.subplots(1, 2)
-    im1 = ax[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
-    im2 = ax[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
-    fig.colorbar(im1, ax=ax[0], fraction=0.046, pad=0.04)
-    fig.colorbar(im2, ax=ax[1], fraction=0.046, pad=0.04)
-    fig.tight_layout()
-    fig.show()
-
-    print(np.average(model.v))
-
-    """model.set_a(1)
-
-    model.run_simulation(ht, 1000, my_solver, tolerance=0)
     fig, ax = plt.subplots(1, 2)
     im1 = ax[0].imshow(model.u.reshape(model.n, model.n), origin="lower")
     im2 = ax[1].imshow(model.v.reshape(model.n, model.n), origin="lower")
