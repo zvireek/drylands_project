@@ -158,7 +158,7 @@ st.latex(r'''
 \underbrace{f_u + g_v < 0}_{\text{tr}(J)} \quad \text{and} \quad \underbrace{f_u g_v - f_v g_u > 0}_{\det(J)}
 ''')
 
-st.markdown("#### 1. Analyzing the Trace Condition ($\\text{tr}(J) < 0$)")
+st.markdown("#### 3.1. Analyzing the Trace Condition ($\\text{tr}(J) < 0$)")
 st.write("Substituting the values at the equilibrium point:")
 st.latex(r'''
 \text{tr}(J) = -1 - (v^*)^2 + m < 0 \implies (v^*)^2 > m - 1
@@ -174,7 +174,7 @@ st.latex(r'''
 \end{aligned}
 ''')
 
-st.markdown("#### 2. Analyzing the Determinant Condition ($\det(J) > 0$)")
+st.markdown("#### 3.2. Analyzing the Determinant Condition ($\det(J) > 0$)")
 st.write(r"Using the relationship $u^*v^* = m$ at equilibrium, the determinant simplifies:")
 st.latex(r'''
 \begin{aligned}
@@ -216,7 +216,7 @@ st.latex(r'''
 
 st.write("With Neumann boundary conditions: $\\frac{\partial z}{\partial x} = \\frac{\partial w}{\partial x} = 0$ at the boundaries.")
 
-st.markdown("#### Fourier Separation of Variables")
+st.markdown("#### 4.1. Fourier Separation of Variables")
 st.write(r"""
 Applying the method of separation of variables, we expand the perturbations 
 into a Fourier cosine series to satisfy the boundary conditions:
@@ -247,7 +247,130 @@ one eigenvalue with $\text{Re}(\lambda) > 0$ for $k > 0$, while being stable for
 st.write("One can notice that we can already write this matrix in the following form, which will be useful in the next step:")
 
 st.latex(r'''
-\frac{d}{dt} \begin{pmatrix} z_n \\ w_n \end{pmatrix} = (J - k^2 D) \begin{pmatrix} z_n \\ w_n \end{pmatrix}
+\frac{d}{dt} \begin{pmatrix} z \\ w \end{pmatrix} = (J - k^2 D) \begin{pmatrix} z \\ w \end{pmatrix}
 ''')
 
 st.write(r"where $k = \frac{\pi n}{L}$ is the wavenumber and $D = \text{diag}(d_1, d_2)$ is the diffusion matrix.")
+
+st.write("#### 4.2. Plane wave perturbation solution")
+
+st.write("We assume that the solution (perturbation) takes the form of a plane wave:")
+
+st.latex(r'''
+\begin{aligned}
+z(x, t) &= c_1 e^{\lambda t} e^{ikx} \\
+w(x, t) &= c_2 e^{\lambda t} e^{ikx}
+\end{aligned}
+''')
+
+st.write("Substituting these into the linearized system, the time derivative becomes:")
+
+st.latex(r'''
+\frac{\partial}{\partial t} \begin{pmatrix} z \\ w \end{pmatrix} = 
+\begin{pmatrix} c_1 \\ c_2 \end{pmatrix} \lambda e^{\lambda t} e^{ikx} = 
+\lambda \begin{pmatrix} z \\ w \end{pmatrix}
+''')
+
+st.info(r"""
+This shows that the temporal evolution of the spatial mode $k$ is 
+directly proportional to the eigenvalue $\lambda$. 
+If $\text{Re}(\lambda(k)) > 0$, the perturbation grows over time, 
+leading to pattern formation.
+""")
+
+st.write("Using the matrix form we get: ")
+
+st.latex(r'''
+\lambda \begin{pmatrix} z \\ w \end{pmatrix} = (J - k^2 D) \begin{pmatrix} z \\ w \end{pmatrix}
+''')
+
+# ---
+st.write(r"""
+The eigenvalues $\lambda(k)$ of the matrix $M = J - k^2 D$ are given by the 
+characteristic equation:
+""")
+
+st.latex(r'''
+\lambda(k) = \frac{\text{tr}(M) \pm \sqrt{\text{tr}(M)^2 - 4\det(M)}}{2}
+''')
+
+st.write(r"We know from kinetic stability that $\lambda_1 + \lambda_2 = \text{tr}(M) < 0$. We now consider two cases for the discriminant:")
+
+st.markdown(r"**Case 1: Complex Eigenvalues ($1^\circ$)**")
+st.latex(r'''\text{tr}(M)^2 < 4\det(M)''')
+st.write(r"""
+In this case, the eigenvalues are complex. The real part of the growth rate is:
+""")
+st.latex(r'''
+\text{Re}(\lambda(k)) = \frac{\text{tr}(M)}{2} < 0
+''')
+st.warning("Since the real part is negative, the state remains stable and no patterns can form.")
+
+st.markdown(r"**Case 2: Real Eigenvalues ($2^\circ$)**")
+st.write(r"""
+For an instability (pattern formation) to occur, we require:
+""")
+st.latex(r'''\text{tr}(M)^2 > 4\det(M)''')
+
+
+st.write(r""" 
+For a pattern to form, we need the larger eigenvalue $\lambda_1$ to be positive:
+""")
+
+st.latex(r'''
+\begin{aligned}
+2.1 \quad \lambda_2 &= \frac{\text{tr}(M) - \sqrt{\text{tr}(M)^2 - 4\det(M)}}{2} < 0 \quad \text{(Always stable)} \\[10pt]
+2.2 \quad \lambda_1 &= \frac{\text{tr}(M) + \sqrt{\text{tr}(M)^2 - 4\det(M)}}{2} > 0 \quad \text{(Condition for patterns)}
+\end{aligned}
+''')
+
+st.write(r"Since $\text{tr}(M) < 0$, the only way for $\lambda_1 > 0$ is if:")
+
+st.latex(r'''
+\begin{aligned}
+\sqrt{\text{tr}(M)^2 - 4\det(M)} &> |\text{tr}(M)| \\[8pt]
+\text{tr}(M)^2 - 4\det(M) &> \text{tr}(M)^2 \\[8pt]
+-4\det(M) &> 0 \\[8pt]
+\det(M) &< 0
+\end{aligned}
+''')
+
+st.write("Substituting $M = J - k^2 D$, we find the expression for the determinant as a function of the wavenumber $k$:")
+
+st.latex(r'''
+\det(M) = d_1 d_2 k^4 - (d_1 g_v + d_2 f_u) k^2 + \det(J) < 0
+''')
+
+st.info(r"""
+**Conclusion:** 
+Pattern formation is possible only if there exists some $k^2 > 0$ such that 
+the quadratic in $k^2$ above becomes negative. This is the fundamental 
+requirement for a Turing instability.
+""")
+
+st.write(r"""
+To find if the determinant $\det(M)$ can ever be negative, we look for its minimum. 
+Since $\det(M)$ is a quadratic function of $k^2$, its vertex (minimum) occurs at:
+""")
+
+st.latex(r'''
+k^2_w = \frac{-b}{2a} = \frac{d_1 g_v + d_2 f_u}{2 d_1 d_2}
+''')
+
+st.write("Substituting this value of $k^2_w$ back into the inequality $\det(M) < 0$:")
+
+st.latex(r'''
+d_1 d_2 \cdot \frac{(d_1 g_v + d_2 f_u)^2}{4 d_1^2 d_2^2} - \frac{(d_1 g_v + d_2 f_u)^2}{2 d_1 d_2} + \det(J) < 0
+''')
+
+st.write("Multiplying by $4 d_1 d_2$ to clear the denominators:")
+
+st.latex(r'''
+(d_1 g_v + d_2 f_u)^2 - 2(d_1 g_v + d_2 f_u)^2 < -4 d_1 d_2 \det(J)
+''')
+
+st.write("Which simplifies to the final condition for the existence of Turing patterns:")
+
+st.success(r'''
+$$(d_1 g_v + d_2 f_u)^2 > 4 d_1 d_2 \det(J)$$
+''')
