@@ -7,6 +7,8 @@ import pathlib
 import sys
 import re
 
+# st.set_page_config(layout="wide")
+
 st.markdown(
     """
     <style>
@@ -24,9 +26,11 @@ st.markdown(
 
 st.write("# 4. Parameter zoo")
 
+st.write("This page may take a second to load.")
+
 params = {
     "Parameter": ["dx", "L", "a_start", "a_end", "m", "d1", "d2"],
-    "Value": [1, 100, 0, 1.7, 0.45, 2, 0.01],
+    "Value": [0.25, 100, 0, 1.7, 0.45, 2, 0.01],
     "Description": [
         "Space step size",
         "Domain length",
@@ -50,6 +54,8 @@ st.dataframe(
     hide_index=True,
     use_container_width=True
 )
+
+st.success("**TIP**: Use zoom option (second from left on the toolbar in the top right) to see a pattern clearly!")
 
 # Ensure project root is available
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[2]

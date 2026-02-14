@@ -1,1 +1,1 @@
-__all__ = ["model", "solver", "utils", "analytics", "config"]
+__all__ = ["model", "solver", "pattern_gallery.py", "analytics", "config"]
