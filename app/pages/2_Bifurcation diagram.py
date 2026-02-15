@@ -52,13 +52,13 @@ st.dataframe(
 )
 
 
-# Display the bifurcation diagram image from project data/
+# Display the bifurcation diagram
 bif_image = PROJECT_ROOT / "data" / "bif_diag.png"
 if bif_image.exists():
     st.subheader("Bifurcation diagram")
     st.image(str(bif_image), caption=bif_image.name, use_column_width=True)
 else:
-    st.info(f"Plik 'bif_diag.png' nie został znaleziony w {PROJECT_ROOT / 'data'}")
+    st.info(f"File 'bif_diag.png' not found in {PROJECT_ROOT / 'data'}")
 
 # Display the pre-computed video (search in project data/ first, then app/)
 app_dir = pathlib.Path(__file__).resolve().parent

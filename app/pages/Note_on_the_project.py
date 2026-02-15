@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("Instructions")
+st.title("Note on the project")
 
 st.markdown(
     """

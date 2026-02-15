@@ -26,7 +26,7 @@ st.markdown(
 
 st.write("# 4. Parameter zoo")
 
-st.write("This page may take a second to load.")
+st.info("This page may take a second to load.")
 
 params = {
     "Parameter": ["dx", "L", "a_start", "a_end", "m", "d1", "d2"],
